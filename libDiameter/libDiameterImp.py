@@ -17,6 +17,8 @@ import logging
 import time
 import string
 
+from libDiameter.Socket import TcpSocket, SctpSocket
+
 # Diameter Header fields
 
 DIAMETER_FLAG_MANDATORY = 0x40
@@ -793,13 +795,20 @@ def splitMsgAVPs(msg):
 
 #---------------------------------------------------------------------- 
  
-# Connect to host:port (TCP) 
-def Connect(host,port):
-    # Create a socket (SOCK_STREAM means a TCP socket)
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# Connect to host:port (TCP/SCTP) 
+def Connect(host, port, sock_type='TCP'):
+    # Create a socket (TCP or SCTP socket)
+    sock_type = sock_type.lower()
+    if sock_type != 'sctp' and sock_type != 'tcp':
+        raise Exception("Only 'tcp' and 'sctp' can be set for 'SockType'")
+
+    if sock_type == 'sctp':
+        sock = SctpSocket()
+    else:
+        sock = TcpSocket()
     sock.connect((host, port))
     return sock
-    
+
 #---------------------------------------------------------------------- 
 # DateTime routines
 
